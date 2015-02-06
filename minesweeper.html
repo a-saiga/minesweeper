@@ -1,0 +1,117 @@
+<html>
+<head>
+  <meta charset = "utf-8">
+  <title>MINESWEEPER</title>
+  <script src="./js/jquery-1.11.2.min.js"></script>
+
+  <body>
+
+  <h1>minesweeper</h1>
+  <p>number of Mine: <input type ="text" id="bomNum"></p>
+  <p>Field x: <input type="text" id="fieldNumx"></p>
+  <p>Field y: <input type="text" id="fieldNumy"></p>
+  <p><input type="button" value="start!" onclick="getInfo();"></p>
+
+  <img id= "tile">
+
+  <script>
+
+  var bombNum = 5;
+  var mapSizeX = 5;
+  var mapSizeY = 5;
+  var mapSize;
+
+  var tiles = [];
+  var tileType = [];
+
+  //tileSize
+  WIDTH = 40;
+  HEIGHT = 40;
+
+  initMap();
+
+  function initMap(){
+
+    mapSize = mapSizeX * mapSizeY;
+    console.log(mapSize)
+    var base = document.getElementById('base');
+    //creating base map
+    for(var i = 0; i < mapSizeX; i++){
+      tiles[i] = [];
+      tileType[i] = [];
+
+      for(var j = 0; j < mapSizeY; j++){
+        tiles[i][j] = 0;
+
+        var tile = document.getElementById("tile");
+        tile.src = "base.png";
+        tile.style.width = WIDTH + "px";
+        tile.style.height = HEIGHT + "px";
+        tile.style.left = (i * WIDTH) + "px";
+        tile.style.top = (j * HEIGHT) + "px";
+  
+        //(function (n, m){
+          tile.onclick = function(){
+            console.log("tap");
+          }
+        //})(i, j);
+
+        var rand = Math.random() * 10 +1;
+        tile.src = "base.jpg";
+        if (rand > 9.5){
+          tiles[i][j] = 1;
+          mapSie--;
+        }
+
+        tileType[i][j] = tile;
+        base.appendChild(tile;)
+
+      }
+    }
+  }
+
+  function selected(i, j, clicked){
+    if (clicked && tiles[i][j] == 1){
+      gameover();
+      if (confirm("game over! try again!")){
+        initMap();
+      }
+      return false;
+    } else if (tiles[i][j] == 2){
+      return false;
+    }
+
+  }
+
+  function gameover(){
+
+  }
+
+
+        //document.write('<img src= "base.jpg" width="40" height"40" />');
+
+/*
+        var rand = Math.random() * mapSizeX + 1;
+        tile.innerHTML = '';
+        if (rand > 9.5){
+          tiles
+        }s
+
+        (function (n,m){
+          tile.onclick = function() {
+            console.log("tap tap");
+          }
+        })*/
+        //tileType[i][j] = tile;
+        //base.appendChild(tile);
+
+
+
+  </script>
+
+
+  <div id="base"></div>
+</body>
+</head>
+
+</html>
