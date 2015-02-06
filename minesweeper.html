@@ -2,116 +2,159 @@
 <head>
   <meta charset = "utf-8">
   <title>MINESWEEPER</title>
+  <style type="text/css">
+  .tile {
+    border: 1px solid #888;
+    position: absolute;
+    text-align: center;
+    font-size: 8px;
+  }
+  </style>
   <script src="./js/jquery-1.11.2.min.js"></script>
-
-  <body>
-
-  <h1>minesweeper</h1>
-  <p>number of Mine: <input type ="text" id="bomNum"></p>
-  <p>Field x: <input type="text" id="fieldNumx"></p>
-  <p>Field y: <input type="text" id="fieldNumy"></p>
-  <p><input type="button" value="start!" onclick="getInfo();"></p>
-
-  <img id= "tile">
-
   <script>
+  $(function(){
+    $('#start').click(function(){
 
-  var bombNum = 5;
-  var mapSizeX = 5;
-  var mapSizeY = 5;
-  var mapSize;
+      console.log('start');
 
-  var tiles = [];
-  var tileType = [];
+      var bomNum = $('#bomNum').val();
+      var fieldNumx = $('#fieldNumx').val();
+      var fieldNumy = $('#fieldNumy').val();
 
-  //tileSize
-  WIDTH = 40;
-  HEIGHT = 40;
+      var WIDTH = 40;
+      var HEIGHT = 40;
 
-  initMap();
+      var tileCount = null;
+      var tiles = [];
+      var tileElement = [];
 
-  function initMap(){
+      initMap();
 
-    mapSize = mapSizeX * mapSizeY;
-    console.log(mapSize)
-    var base = document.getElementById('base');
-    //creating base map
-    for(var i = 0; i < mapSizeX; i++){
-      tiles[i] = [];
-      tileType[i] = [];
+      function initMap() {
+        tileCount = fieldNumx * fieldNumy;
+        var base = $('#base');
+        for (var i = 0; i < fieldNumx; i++) {
+          tiles[i] = [];
+          tileElement[i] = [];
+          for(var j = 0; j < fieldNumy; j++) {
+            tiles[i][j] = 0;
+            var tile = $('<div>');
+            tile.css({
+              'backgroundColor': '#eee',
+              'width': WIDTH + "px",
+              'height': HEIGHT + "px",
+              'left': (i * WIDTH) + "px",
+              'top': (j * HEIGHT) + "px",
+            }).addClass('tile');
 
-      for(var j = 0; j < mapSizeY; j++){
-        tiles[i][j] = 0;
+            (function (n, m) {
+              tile.on('click',function(){
+                var isClear = selectTile(n, m, true, n, m);
+                if (isClear) {
+                  alert('CLEAR');
+                  initMap();
+                }
+              });
+            })(i, j);
 
-        var tile = document.getElementById("tile");
-        tile.src = "base.png";
-        tile.style.width = WIDTH + "px";
-        tile.style.height = HEIGHT + "px";
-        tile.style.left = (i * WIDTH) + "px";
-        tile.style.top = (j * HEIGHT) + "px";
-  
-        //(function (n, m){
-          tile.onclick = function(){
-            console.log("tap");
+            var rand = Math.random() * 10 + 1;
+            tile.innerHTML = '';
+            if (rand > 9.5) {
+              tiles[i][j] = 1;
+              tileCount--;
+              //tile.style.backgroundColor = '#f00';
+              //tile.innerHTML = "��";
+            } else {
+              //tile.innerHTML = i+':'+j;
+            }
+            tileElement[i][j] = tile;
+            base.append(tile);
           }
-        //})(i, j);
-
-        var rand = Math.random() * 10 +1;
-        tile.src = "base.jpg";
-        if (rand > 9.5){
-          tiles[i][j] = 1;
-          mapSie--;
+        }
+      }
+      function selectTile(i, j, isClick, orgI, orgJ) {
+        if (isClick && tiles[i][j] == 1) {
+          gameover();
+          if (confirm("GAME ORVER\nRESTART?")) {
+            initMap();
+          }
+          return false;
+        } else if (tiles[i][j] == 2) {
+          return false;
         }
 
-        tileType[i][j] = tile;
-        base.appendChild(tile;)
+        tileCount--;
+        tiles[i][j] = 2;
 
-      }
-    }
-  }
-
-  function selected(i, j, clicked){
-    if (clicked && tiles[i][j] == 1){
-      gameover();
-      if (confirm("game over! try again!")){
-        initMap();
-      }
-      return false;
-    } else if (tiles[i][j] == 2){
-      return false;
-    }
-
-  }
-
-  function gameover(){
-
-  }
-
-
-        //document.write('<img src= "base.jpg" width="40" height"40" />');
-
-/*
-        var rand = Math.random() * mapSizeX + 1;
-        tile.innerHTML = '';
-        if (rand > 9.5){
-          tiles
-        }s
-
-        (function (n,m){
-          tile.onclick = function() {
-            console.log("tap tap");
+        var bomCount = 0;
+        for (var n = i-1; n <= i + 1; n++) {
+          if (n < 0 || n >= fieldNumx) {
+            continue;
           }
-        })*/
-        //tileType[i][j] = tile;
-        //base.appendChild(tile);
+          for (var m = j-1; m <= j +1; m++) {
+            if (0 <= m && m < fieldNumy) {
+              if (tiles[n][m] == 1) {
+                bomCount++;
+              }
+            }
+          }
+        }
+
+        tileElement[i][j].html(bomCount);
+        tileElement[i][j].css({
+          'backgroundColor': '#bbb'
+        });
+
+        if (bomCount == 0) {
+          for (var n = i-1; n <= i + 1; n++) {
+            if (n < 0 || n >= fieldNumx) {
+              continue;
+            }
+            for (var m = j-1; m <= j + 1; m++) {
+              if (0 <= m && m < fieldNumy) {
+                if ((n == i && m ==j) || (n == orgI && m == orgJ)) {
+                  // OWN TILE or CLICK TILE
+                } else {
+                  selectTile(n, m, false, orgI, orgJ);
+                }
+              }
+            }
+          }
+        }
+
+        if (tileCount == 0) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+
+      function gameover() {
+        for (var i = 0; i < fieldNumx; i++) {
+          for(var j = 0; j < fieldNumy; j++) {
+            if (tiles[i][j] == 1) {
+              tileElement[i][j].html('o');
+              tileElement[i][j].css({
+                'backgroundColor': '#f00'
+              });
+            }
+          }
+        }
+      }
+    });
 
 
-
+  });
   </script>
+</head>
+<body>
 
+  <h1>minesweeper</h1>
+  <p>number of Mine: <input type ="text" id="bomNum" value="5"></p>
+  <p>Field x: <input type="text" id="fieldNumx" value="5"></p>
+  <p>Field y: <input type="text" id="fieldNumy" value="5"></p>
+  <p><input type="button" id="start" value="start!"></p>
 
   <div id="base"></div>
 </body>
-</head>
-
 </html>
